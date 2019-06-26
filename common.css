@@ -78,7 +78,7 @@ em{font-style:normal}address {font-style:normal;}
 
 .contents .item02 {position:relative;}
 
-.contents .item02 .tit:before, .contents .item02 dl:before {display:block; position:absolute; left:0; top:-1px; width:100%; height:2px; background:url("../img/img_hr.png") repeat-x 0 0; content:"";}
+.contents .item02 .tit:before, .contents .item02 dl:before {display:block; position:absolute; left:0; top:-1px; width:100%; height:2px; background:url("img_hr.png") repeat-x 0 0; content:"";}
 
 .contents .content01 {margin-top:70px;}
 
@@ -101,13 +101,7 @@ em{font-style:normal}address {font-style:normal;}
 .content01 .cont dl dt {font-size:35px; color:#000; font-weight:bold;}
 
 .content01 .cont dl dd {margin-top:10px;}
-
-.content01 .con_box .item01 {background:url("../img/bg_img01.gif") no-repeat 110px bottom;}
-
-.content01 .con_box .item02 {background:url("../img/bg_img02.gif") no-repeat 110px bottom;}
-
  
-
 .content02 .con_box dl {padding:40px 0;}
 
 .content02 .con_box dl dt {margin-bottom:10px; font-size:35px; color:#222; font-weight:bold; line-height:1.2;}
