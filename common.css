@@ -74,6 +74,7 @@ em{font-style:normal}address {font-style:normal;}
 
 .contents .tit_h2 {padding-bottom: 40px;border-bottom: 1px solid #eee;font-size:50px;color:#222;line-height:1.2;font-weight:bold;letter-spacing:-3px;}
 
+
 .contents .tit_h2:after {display:inline-block; width:10px; height:10px; margin-left:5px; border-radius:20px; background:#2b7da7; content:""; vertical-align:bottom;}
 
 .contents .item02 {position:relative;}
