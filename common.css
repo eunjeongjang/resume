@@ -39,8 +39,8 @@ em{font-style:normal}address {font-style:normal;}
 .tbl_area ol:first-child li {display:table; width:100%; table-layout:fixed; width:100%; border-top:1px solid #ccc;}
 .tbl_area ol li {display:table; width:100%; table-layout:fixed; width:100%; border-bottom:1px solid #ccc;}
 .tbl_area ol li san.bg {background:#f8f8f8;}
-.tbl_area ol li span.num {display:table-cell; width:20%; padding:20px 10px; vertical-align: top; text-align:center; font-size:28px; color:#222; border-right:1px solid #ccc;}
-.tbl_area ol li span.txt {display:table-cell; width:80%; padding:20px 10px; vertical-align: top; font-size:28px; color:#222;}
+.tbl_area ol li span.num {display:table-cell; width:30%; padding:20px 10px; vertical-align: top; text-align:center; font-size:28px; color:#222; border-right:1px solid #ccc;}
+.tbl_area ol li span.txt {display:table-cell; width:70%; padding:20px 10px; vertical-align: top; font-size:28px; color:#222;}
 .tbl_area p{margin: 20px 0 20px 0;}
 .contents .tit_h2 {padding-bottom:10px;border-bottom:4px solid #222; font-size:50px; color:#222; line-height:1.2; font-weight:bold; letter-spacing:-3px;}
 .contents .tit_h2:after {display:inline-block; width:10px; height:10px; margin-left:5px; border-radius:20px; background:#2b7da7; content:""; vertical-align:bottom;}
