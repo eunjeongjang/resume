@@ -12,52 +12,6 @@
     window.onload = function() {
 
 
-        var filter = "win16|win32|win64|mac|macintel";
-
-        //var url_protocol = "https://";
-        //var url_pc = "www.axa.co.kr/AsianPlatformInternet/micro/mlgdriver/"; //PC 페이지 경로
-        //var url_mobile = "m.axa.co.kr/AsianPlatformInternet/mlg_micro/mlgdriver/"; //모바일 페이지 경로
-
-        //보장내용,가입안내,알아두실 사항
-        $(".tab_area ul li").click(function() {
-            //2018-01-23 수정
-            $(this).addClass("open");
-            $(this).siblings().removeClass("open");
-            //2018-01-23 수정
-        });
-
-        //고객정보 활용 동의 button
-        $(".bgarea .agree a").click(function() {
-            $(this).toggleClass("highlight");
-        });
-
-        //입력 필드
-        $("input").each(function() {
-            $(this).click(function() {
-                $(this).addClass("active");
-                $(this).siblings().removeClass("active");
-            });
-        });
-
-        //170622 모바일페이지로전환
-        if (isMobile() == true && location.href.indexOf(url_mobile) < 0) {
-            location.href = url_protocol + url_mobile; //모바일 페이지 경로
-        }
-
-
-        //이름_한글외삭제
-        $("input[name=cust_nm]").keyup(function(event) {
-
-            var regexpOnlyKor = /[a-z0-9]|[ \[\]{}()<>?|`~!@#$%^&*-_+=,.;:\"'\\]/g;
-            var custNm = $(this).val();
-            if (regexpOnlyKor.test(custNm)) {
-                alert("한글만 입력할 수 있습니다.");
-                $(this).val(custNm.replace(regexpOnlyKor, ""));
-            }
-
-        });
-
-
         //2017-08-07 이벤트 추가
         //
         showDivs(slideIndex);
@@ -65,217 +19,8 @@
         //fnSetS_scOnload();
     };
 
-    function fnSetS_scOnload() {
-        s_sc.channel = "public"; // 공통영역
-        s_sc.pageName = "pc:ko:public:driver:mileage_micro"; // 페이지명
 
-        s_sc.prop5 = "out"; // _cms_age 쿠키값 있는 경우 'in', default 값은 'out'
-        s_sc.eVar5 = "D=c5";
-
-        s_sc.prop6 = "ko"; // axa_lang_type 쿠키값
-        s_sc.eVar8 = "D=c6";
-
-        /* Additional Value 해당 쿠키값 존재하는 경우만 입력, 해당 값이 없으면 생략 가능 */
-
-        s_sc.eVar24 = fnReadCookieSCode("_cms_userid"); // _cms_userid 쿠키값
-        s_sc.eVar25 = fnReadCookieSCode("ccguid"); // ccguid 쿠키값
-
-        void(s_sc.t()); // 전송
-    }
-
-    function fnSetS_scSubmit() {
-
-        s_sc.events = 'event38'; // 상담신청 이벤트건수
-        void(s_sc.t()); // 호출 수(필수)
-    }
-
-    //모바일체크(true==모바일)
-    function isMobile() {
-
-        var browser = "iPhone|iPod|iPad|BlackBerry|Android|Windows CE|LG|MOT|SAMSUNG|SonyEricsson"; //모바일 브라우져 체크
-
-        try {
-            if (navigator.userAgent.match(browser)) {
-                return true;
-            } else {
-                return false;
-            }
-        } catch (e) {
-            return null;
-        }
-    }
-
-    //상담신청후처리
-    var fnAfterAjaxSucc = function(data) { //data.dataInfo.rslt ==> S:성공, 그외 실패 (실패메세지: data.dataInfo.err_msg)
-
-        if (data.dataInfo.rslt == "S") { //성공일 경우
-            wrapWindowByMask('.popup');
-            $("input").each(function(idx, ele) {
-                ele.value = "";
-            }); //저장성공후_입력값제거
-            $(".bgarea .agree a").removeClass("highlight"); //고객정보활용동의초기화
-            $("#gender1, #gender2").removeClass("on"); //성별초기화
-            //alert("상담신청완료");
-            fnSetS_scSubmit();
-        } else { //실패일 경우
-            alert(data.dataInfo.err_msg);
-        }
-
-    };
-
-    var bAlbeToSubmit = true; //연속저장제어
-
-    //상담신청
-    function fnSubmit() {
-
-        if (!bAlbeToSubmit) { //저장요청중인경우(완료되지않음)
-            try {
-                //console.log("연속저장제어");
-            } catch (e) {
-
-            }
-            return; //연속저장제어
-        }
-
-        if (document.form1.cust_nm.value.length <= 0) {
-            alert("이름을 입력하세요.");
-            return;
-        }
-
-        if (!fnSetHpNo()) {
-            alert("상담 받을 연락처를 확인하세요.");
-            return;
-        }
-
-        var bith_d = document.form1.bith_d.value.replace(/[^\d]/g, "");
-
-        if (bith_d.length != 8) {
-            alert("생년월일을 확인하세요.");
-            return;
-        }
-
-        var bValGender = fnSetGender();
-
-        if (!bValGender) { //성별체크
-            alert("성별을 선택하세요.");
-            return;
-        }
-
-        if (!$(".bgarea .agree a").hasClass("highlight")) {
-            document.form1.cust_agrm_yn.value = "N";
-            alert("고객정보 활용 동의를 체크하세요.");
-            return;
-        } else {
-            document.form1.cust_agrm_yn.value = "Y";
-        }
-
-        var strURL = "/SVSSWLI14300-ZI.jstl";
-
-        var objData = {
-            dummy: null,
-            pfmTxCode: "SVSSWLI14300",
-            pfmFnCd: "ZI"
-
-            ,
-            call_type_1: "K100",
-            call_type_2: "1530"
-                //, cust_nm     : document.form1.cust_nm.value
-                ,
-            cust_nm: encodeURI(document.form1.cust_nm.value),
-            hp_no1: document.form1.hp_no1.value,
-            hp_no2: document.form1.hp_no2.value,
-            hp_no3: document.form1.hp_no3.value,
-            bith_d: bith_d,
-            gender_cd: document.form1.gender_cd.value,
-            intgrt_cd: "0109301" //7b
-                ,
-            cust_agrm_yn: document.form1.cust_agrm_yn.value
-        };
-
-        bAlbeToSubmit = false; //중복입력방지(입력불가로변경)
-
-        try {
-            $.ajax({
-                type: "POST",
-                url: strURL,
-                dataType: "json",
-                contentType: "application/x-www-form-urlencoded;charset=euc-kr",
-                data: objData,
-                cache: false,
-                success: fnAfterAjaxSucc,
-                error: function(x, o, e) {
-                    //TODO: 오류 메세지 변경
-                    alert("통신오류가 발생하였습니다.\n잠시 후 다시 진행하시기 바랍니다.\n" + x.status + " : " + o + " : " + e);
-                }
-            });
-
-        } catch (e) {
-
-        }
-
-        bAlbeToSubmit = true; //중복입력방지(입력가능으로변경)
-    }
-
-    //전화번호 전송 포멧
-    function fnSetHpNo() {
-
-        var form1 = document.form1;
-        var strHpNo = document.form1.hp_no.value.replace(/[-]/g, "");
-        var strHpNoFmt = strHpNo.replace(/(^0(?:2|[\d]{2}))([\d]+)([\d]{4}$)/g, "$1-$2-$3");
-        var arrStrHpNo = null;
-
-        if (strHpNoFmt) {
-            arrStrHpNo = strHpNoFmt.split("-");
-        }
-
-        if (strHpNo.length >= 8 && strHpNo.length <= 11 && arrStrHpNo && arrStrHpNo.length == 3 && arrStrHpNo[1].length <= 4) {
-            form1.hp_no1.value = arrStrHpNo[0]; //strHpNo.substring(0,3);
-            form1.hp_no2.value = arrStrHpNo[1]; //strHpNo.substring(3,7);
-            form1.hp_no3.value = arrStrHpNo[2]; //strHpNo.substring(7,strHpNo.length);
-            return true;
-        } else {
-            form1.hp_no1.value = "";
-            form1.hp_no2.value = "";
-            form1.hp_no3.value = "";
-            return false;
-        }
-    }
-
-    //성별
-    function fnSetGender() {
-        if ($("#gender1").hasClass("on")) {
-            return document.form1.gender_cd.value = "1";
-        } else if ($("#gender2").hasClass("on")) {
-            return document.form1.gender_cd.value = "2";
-        } else {
-            null;
-        }
-    }
-
-    //전화번호, 생년월일 뷰포멧
-    function fnSetFormDataForView() {
-
-        var form1 = document.form1;
-
-        form1.hp_no.value = form1.hp_no.value.replace(/[^\d]/g, "");
-        form1.hp_no.value = form1.hp_no.value.replace(/(^0(?:2|[\d]{2}))([\d]+)([\d]{4}$)/g, "$1-$2-$3");
-        form1.bith_d.value = form1.bith_d.value.replace(/[^\d]/g, "");
-        form1.bith_d.value = form1.bith_d.value.replace(/(^[\d]{4})([\d]{2})([\d]{2}$)/g, "$1.$2.$3");
-
-    }
-
-    //전화번호, 생년월일 수정포멧
-    function fnSetFormDataForEdit(el_nm) {
-
-        var form1 = document.form1;
-
-        if ("hp_no" == el_nm && form1.hp_no.value.match(/[^\d]/g)) {
-            form1.hp_no.value = form1.hp_no.value.replace(/[^\d]/g, "");
-        }
-        if ("bith_d" == el_nm && form1.bith_d.value.match(/[^\d]/g)) {
-            form1.bith_d.value = form1.bith_d.value.replace(/[^\d]/g, "");
-        }
-    }
+  
     </script>
     <script>
     var slideIndex = 1;
@@ -310,51 +55,7 @@
     }
     </script>
     <script type="text/javascript">
-    //마스크
-    function wrapWindowByMask(obj) {
-        var maskHeight = $(document).height();
-        var maskWidth = $(window).width();
-
-        $('.mask').css({
-            'width': maskWidth,
-            'height': maskHeight
-        });
-
-        $('.mask').fadeIn();
-        $('.mask').fadeTo("slow", 0.8);
-
-        var left = ($(window).scrollLeft() + ($(window).width() - $(obj).width()) / 2);
-        var top = ($(window).scrollTop() + ($(window).height() - $(obj).height()) / 2);
-
-        $(obj).css({
-            'left': left,
-            'top': top,
-            'position': 'absolute'
-        });
-        $(obj).show();
-    }
-
-    $(document).ready(function() {
-        //상담신청 버튼
-        $('.tellme').click(function(e) {
-            e.preventDefault();
-            fnSubmit(); //상담신청 저장 ( fnAfterAjaxSucc() 에서 성공/실패 확인가능 )
-        });
-        //자세히 보기 팝업 열기
-        $('.btn_more01').click(function(e) {
-            e.preventDefault();
-            wrapWindowByMask('#popup01');
-        });
-        $('.btn_more02').click(function(e) {
-            e.preventDefault();
-            wrapWindowByMask('#popup02');
-        });
-        //상담신청 팝업 닫기
-        $('.close_layer').click(function(e) {
-            e.preventDefault();
-            $('.popup').hide();
-            $('.mask').hide();
-        });
+       $(document).ready(function() {
 
         //2019-07-15 추가 : 헤더메뉴
         $('.open_menu').click(function(){
@@ -363,140 +64,17 @@
         $('.close_menu').click(function(){
             $('#gnb').hide();
         });
-    });
-    </script>
-    <script type="text/javascript">
-    setTimeout(function() {
-        var a = document.createElement("script");
-        var b = document.getElementsByTagName("script")[0];
-        a.src = document.location.protocol + "//script.crazyegg.com/pages/scripts/0040/2488.js?" + Math.floor(new Date().getTime() / 3600000);
-        a.async = true;
-        a.type = "text/javascript";
-        //b.parentNode.insertBefore(a, b)
-    }, 1);
+       });
     </script>
 </head>
 
 <body>
-    <form name="form1">
-        <input type="hidden" name="hp_no1">
-        <!--연락처1-->
-        <input type="hidden" name="hp_no2">
-        <!--연락처2-->
-        <input type="hidden" name="hp_no3">
-        <!--연락처3-->
-        <input type="hidden" name="gender_cd" value="1">
-        <!--성별-->
-        <input type="hidden" name="cust_agrm_yn">
-        <div class="mask">
-            <!-- 마스크로 띄워질 Div -->
-        </div>
-        <div class="popup" id="popup01">
-            <h1>개인정보 수집 및 이용 동의</h1>
-            <a href="#none" class="close_layer"><span class="hidden">닫기</span></a>
-            <div class="cont">
-                <strong class="tit">당사는 「개인정보보호법」및「정보통신망 이용촉진 및 정보보호 등에 관한 법률」에<br /> 따라 귀하의 개인정보를 다음과 같이 수집 &middot; 이용하고자 합니다.</strong>
-                <div class="box_area">
-                    <ul>
-                        <li><strong>개인정보의 수집, 이용 목적 </strong>상품 &middot; 서비스 소개 및 판매, 사은 &middot; 판촉행사 안내, 시장조사</li>
-                        <li class="mt15"><strong>수집 &middot; 이용할 개인정보의 내용</strong> 생년월일, 성별, 성명, 전화번호</li>
-                        <li class="mt15"><strong>개인정보의 보유 &middot; 이용기간</strong>
-                            <ul class="rad_list">
-                                <li class="formWrap">
-                                    <input type="radio" id="sample01_01" name="sample01" checked="checked" />
-                                    <label for="sample01_01">수집 &middot; 이용 동의일로부터 3년 까지</label>
-                                </li>
-                                <li class="formWrap">
-                                    <input type="radio" id="sample01_02" name="sample01" />
-                                    <label for="sample01_02">수집 &middot; 이용 동의일로부터 2년 까지</label>
-                                </li>
-                                <li class="formWrap">
-                                    <input type="radio" id="sample01_03" name="sample01" />
-                                    <label for="sample01_03">수집 &middot; 이용 동의일로부터 1년 까지</label>
-                                </li>
-                            </ul>
-                        </li>
-                        <li class="mt15"><strong>가입권유 연락방식</strong>
-                            <ul class="rad_list">
-                                <li class="formWrap">
-                                    <input type="radio" id="sample02_01" name="sample02" checked="checked" />
-                                    <label for="sample02_01">전화, 문자</label>
-                                </li>
-                                <li class="formWrap">
-                                    <input type="radio" id="sample02_02" name="sample02" />
-                                    <label for="sample02_02">전화</label>
-                                </li>
-                                <li class="formWrap">
-                                    <input type="radio" id="sample02_03" name="sample02" />
-                                    <label for="sample02_03">문자</label>
-                                    <span class="notice">* 가입권유방식을 문자로 받으실 경우, 전문 상담원의 안내 전화가 나가지 않습니다.</span>
-                                </li>
-                            </ul>
-                        </li>
-                    </ul>
-                </div>
-                <ul class="star_list">
-                    <li>상기 내용의 동의를 거부할 수 있으며, 다만 동의를 하시지 않는 경우 보험설계 및 상담서비스 제공이 제한될 수 있습니다.</li>
-                    <li>동의하시더라도 당사 홈페이지 및 고객센터(1566-1566)를 통해 철회하거나 가입권유 목적의 연락에 대한 중단을 요청하실 수 있으며 은행연합회의 Do Not Call 센터(www.donotcall.or.kr)를 통해 언제든지 마케팅 활동에 대한 중지를 요청할 수 있습니다.</li>
-                </ul>
-            </div>
-            <div class="btn_confirm"><a href="#none" class="close_layer">확인</a></div>
-        </div>
-        <div class="popup" id="popup02">
-            <h1>개인정보의 제3자 제공에 관한 동의</h1>
-            <a href="#none" class="close_layer"><span class="hidden">닫기</span></a>
-            <div class="cont">
-                <strong class="tit">당사는 「개인정보보호법」및「정보통신망 이용촉진 및 정보보호 등에 관한 법률」에<br /> 따라 귀하의 개인정보를 다음과 같이 제3자에게 제공하고자 합니다.</strong>
-                <div class="box_area">
-                    <ul>
-                        <li class="mt15"><strong>개인정보를 제공 받는 자</strong>악사손해보험과 모집위탁계약을 체결한 설계사 또는 대리점</li>
-                        <li class="mt15"><strong>개인정보를 제공 받는 자의 이용목적</strong>상품 &middot; 서비스 소개 및 판매, 사은 &middot; 판촉행사 안내</li>
-                        <li class="mt15"><strong>제공할 개인정보의 내용</strong>생년월일, 성별, 성명, 전화번호</li>
-                        <li class="mt15"><strong>개인정보의 보유 &middot; 이용기간</strong>
-                            <ul class="rad_list">
-                                <li class="formWrap">
-                                    <input type="radio" id="sample03_01" name="sample03" checked="checked" />
-                                    <label for="sample03_01">수집 &middot; 이용 동의일로부터 3년 까지</label>
-                                </li>
-                                <li class="formWrap">
-                                    <input type="radio" id="sample03_02" name="sample03" />
-                                    <label for="sample03_02">수집 &middot; 이용 동의일로부터 2년 까지</label>
-                                </li>
-                                <li class="formWrap">
-                                    <input type="radio" id="sample03_03" name="sample03" />
-                                    <label for="sample03_03">수집 &middot; 이용 동의일로부터 1년 까지</label>
-                                </li>
-                            </ul>
-                        </li>
-                        <li class="mt15"><strong>가입권유 연락방식</strong>
-                            <ul class="rad_list">
-                                <li class="formWrap">
-                                    <input type="radio" id="sample04_01" name="sample04" checked="checked" />
-                                    <label for="sample04_01">전화, 문자</label>
-                                </li>
-                                <li class="formWrap">
-                                    <input type="radio" id="sample04_02" name="sample04" />
-                                    <label for="sample04_02">전화</label>
-                                </li>
-                                <li class="formWrap">
-                                    <input type="radio" id="sample04_03" name="sample04" />
-                                    <label for="sample04_03">문자</label>
-                                    <span class="notice">* 가입권유방식을 문자로 받으실 경우, 전문 상담원의 안내 전화가 나가지 않습니다.</span>
-                                </li>
-                            </ul>
-                        </li>
-                    </ul>
-                </div>
-            </div>
-            <div class="btn_confirm"><a href="#none" class="close_layer">확인</a></div>
-        </div>
-
 
         <div id="wrap">
             <header>
-                <h1><a href="https://www.axa.co.kr" target="_blank"><img src="inc/img/img_logo.png" alt="AXA다이렉트"> <span>(무)시니어암보험1904</span></a></h1>
+                <h1><a href="#" target="_blank"><!--<img src=""> --><span>로고</span></a></h1>
                 <div class="fRight">
-                    <span class="tel">대표번호 <em>1566-1566</em></span>
+                    <span class="tel">대표번호 <em></em></span>
                     <a href="#none" class="open_menu">
                         <span class="hidden">메뉴열기</span>
                     </a>
@@ -507,26 +85,32 @@
                     <ul>
                         <li class="on">
                             <dl>
-                                <dt><a href="index.html">시니어 암보험</a></dt>
-                                <dd><a href="sub01.html">보장내용</a></dd>
-                                <dd><a href="sub02.html">가입안내</a></dd>
-                                <dd><a href="sub03.html">알아두실 사항</a></dd>
+                                <dt><a href="index.html">Service</a></dt>
+                                <dd><a href="sub01.html">경영대시보드</a></dd>
                             </dl>
                         </li>
                         <li>
                             <dl>
-                                <dt><a href="#none">생활비받는건강보험</a></dt>
-                                <dd><a href="#none">보장내용</a></dd>
-                                <dd><a href="#none">가입안내</a></dd>
-                                <dd><a href="#none">알아두실 사항</a></dd>
+                                <dt><a href="#none">Consulting</a></dt>
+                                <dd><a href="#none">원가 산출/관리 프로세스 운용</a></dd>
+                                <dd><a href="#none">프로세스 최적화</a></dd>
+                                <dd><a href="#none">성과평가 설계/실행 </a></dd>
                             </dl>
                         </li>
                         <li>
                             <dl>
-                                <dt><a href="#none">(무)AXA마일리지운전자보험</a></dt>
-                                <dd><a href="#none">보장내용</a></dd>
-                                <dd><a href="#none">가입안내</a></dd>
-                                <dd><a href="#none">알아두실 사항</a></dd>
+                                <dt><a href="#none">Insight</a></dt>
+                            </dl>
+                        </li>
+                        <li>
+                            <dl>
+                                <dt><a href="#none">Mentoring</a></dt>
+  
+                            </dl>
+                        </li>
+                     	<li>
+                            <dl>
+                                <dt><a href="#none">contact</a></dt>
                             </dl>
                         </li>
                     </ul>
@@ -544,7 +128,7 @@
                             <button class="next" onclick="plusDivs(1);  return false;"><span class="hidden">다음</span></button>
                         </div>
                     </div>
-                    <p class="seal_num">검-190419-신채널개발팀-30</p>
+
                     <ul>
                         <li class="mySlides slide01 active">
                            <span class="hidden">간편 심사를 통해 암진단 시 진단금을 보장해드립니다.(특약가입 시) 5대고액치료비암(간편심사)</span>
@@ -557,92 +141,23 @@
                         </li>
                     </ul>
                 </div>
-                <div class="input_area bgarea">
-                    <div class="inner">
-                        <!-- 정보 입력 -->
-                        <fieldset>
-                            <legend>고객정보입력</legend>
-                            <div class="input_info">
-                                <ul>
-                                    <li class="birth">
-                                        <div class="form">
-                                            <label for="birth">생년월일</label>
-                                            <input type="text" id="birth" maxlength="8" onclick="fnSetFormDataForEdit(this.name);" onkeyup="fnSetFormDataForView();" onkeypress="if(!(event.keyCode >= 48 && event.keyCode <= 57))return false; this.onclick();" onblur="this.onkeyup();" style="width:92px" placeholder="예)19970101" />
-                                        </div>
-                                        <div class="gender">
-                                            <a href="#none" id="gender1" title="남" onclick="this.className='on'; gender2.className=''; return false;" onkeypress="this.onclick();" class="on">남</a>
-                                            <a href="#none" id="gender2" title="여" onclick="this.className='on'; gender1.className=''; return false;" onkeypress="this.onclick();">여</a>
-                                        </div>
-                                    </li>
-                                    <li>
-                                        <label for="name">이름</label>
-                                        <input type="text" id="name" maxlength="15" style="width:220px" />
-                                    </li>
-                                    <li class="phone">
-                                        <select title="휴대폰 첫번째 자리">
-                                            <option value="">010</option>
-                                            <option value="">011</option>
-                                            <option value="">016</option>
-                                            <option value="">017</option>
-                                            <option value="">018</option>
-                                            <option value="">019</option>
-                                        </select>
-                                        <input type="text" title="휴대폰 두번째 자리" maxlength="14" onclick="fnSetFormDataForEdit(this.name);" onkeyup="fnSetFormDataForView();" onkeypress="this.onkeyup();" onblur="this.onkeyup();" />
-                                        <span class="dash">-</span>
-                                        <input type="text" title="휴대폰 세번째 자리" maxlength="14" onclick="fnSetFormDataForEdit(this.name);" onkeyup="fnSetFormDataForView();" onkeypress="this.onkeyup();" onblur="this.onkeyup();" />
-                                    </li>
-                                </ul>
-                            </div>
-                            <ul class="agree_list">
-                                <li>
-                                    <span class="formWrap"><input type="checkbox" id="agree01"><label for="agree01">개인정보수집 이용 동의</label></span>
-                                    <span class="more_info"><a href="#" class="btn_more01">자세히보기</a></span>
-                                </li>
-                                <li>
-                                    <span class="formWrap"><input type="checkbox" id="agree02"><label for="agree02">개인정보 제공 동의</label></span>
-                                    <span class="more_info"><a href="#" class="btn_more02">자세히보기</a></span>
-                                </li>
-                            </ul>
-                        </fieldset>
-                        <!-- //정보 입력 -->
-                        <!-- 정보 입력 후 확인 결과 노출 -->
-                        <div class="result_area"  style="display:none;">
-                            <div class="question">홍길동님의 월 보험료는?</div>
-                            <div class="answer"><strong>1,000,000</strong><span>원</span></div>
-                            <p>상담 신청을 통해<br /> 할인 금액을 확인 하세요!</p>
-                        </div>
-                        <div class="tel_area">
-                            <a href="tel:16703708"><img src="inc/img/btn_call.png" alt="평일9~18시 나의 할인액은? 1670-3708" /></a>
-                        </div>
-                        <!-- //정보 입력 후 확인 결과 -->
-                        <div class="btn_area">
-                            <a href="#">보험료 바로 확인</a>
-                            <a href="#">상담 신청</a>
-                            <!-- 정보 입력 후 확인 결과 노출 시
-                            <a href="#">보험료 다시 계산하기</a>
-                         -->
-                        </div>
-                    </div>
-                </div>
+   
                 <div class="menu_list">
                     <ul>
-                        <li class="menu01"><a href="sub01.html"><span>보장 내용</span></a></li>
-                        <li class="menu02"><a href="sub02.html"><span>가입 안내</span></a></li>
-                        <li class="menu03"><a href="sub03.html"><span>알아두실 사항</span></a></li>
+                        <li class="menu01"><a href="sub03.html"><span>Service</span></a></li>
+                        <li class="menu02"><a href="#"><span>Mentoring</span></a></li>
+                        <li class="menu03"><a href="#"><span>Contact</span></a></li>
                     </ul>
                 </div>
             </div>
             <footer>
                 <address>
-                    <span>AXA손해보험(주) 대표이사 질 프로마조</span>
-                    <span>사업자등록번호 114-86-04968</span>
-                    <span>(04322) 서울시 용산구 한강대로 71길 4 한진중공업빌딩 11층</span>
-                    <span>TEL 1566-1566</span>
+                    <span>TEL </span>
                 </address>
-                <p class="copy">Copyrightⓒ2001~2017 AXA General Insurance Co., Ltd. All Rights Reserved.</p>
+                <p class="copy">Copyrightⓒ2001~2019 All Rights Reserved.</p>
             </footer>
         </div>
-    </form>
+
 </body>
 
 </html>
