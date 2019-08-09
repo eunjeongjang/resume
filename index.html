@@ -1,215 +1,648 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="ko">
-
 <head>
-    <title>resume</title>
-    <meta charset="utf-8">
+    <title>세계 1위 보험 브랜드 AXA다이렉트</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width,initial-scale=1.0,minimum-scale=1.0,maximum-scale=1.0,user-scalable=no">
-    <link rel="stylesheet" type="text/css" href="common.css" />
+    <meta name="keywords" content="마일리지운전자보험, 운전자보험, 마일리지할인, 다이렉트운전자보험">
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <link rel="stylesheet" href="common.css">
     <script type="text/javascript" src="jquery-3.4.1.js"></script>
     <script type="text/javascript">
-        $(window).on("scroll", function () {
-            var currentPer = ($(window).scrollTop() / ($(document).outerHeight() - $(window).height())) * 100;
-            var bar = $(".progress_wrap .bar .per");
-            bar.css("width", currentPer + "%");
+    window.onload = function() {
+
+
+        var filter = "win16|win32|win64|mac|macintel";
+
+        //var url_protocol = "https://";
+        //var url_pc = "www.axa.co.kr/AsianPlatformInternet/micro/mlgdriver/"; //PC 페이지 경로
+        //var url_mobile = "m.axa.co.kr/AsianPlatformInternet/mlg_micro/mlgdriver/"; //모바일 페이지 경로
+
+        //보장내용,가입안내,알아두실 사항
+        $(".tab_area ul li").click(function() {
+            //2018-01-23 수정
+            $(this).addClass("open");
+            $(this).siblings().removeClass("open");
+            //2018-01-23 수정
         });
+
+        //고객정보 활용 동의 button
+        $(".bgarea .agree a").click(function() {
+            $(this).toggleClass("highlight");
+        });
+
+        //입력 필드
+        $("input").each(function() {
+            $(this).click(function() {
+                $(this).addClass("active");
+                $(this).siblings().removeClass("active");
+            });
+        });
+
+        //170622 모바일페이지로전환
+        if (isMobile() == true && location.href.indexOf(url_mobile) < 0) {
+            location.href = url_protocol + url_mobile; //모바일 페이지 경로
+        }
+
+
+        //이름_한글외삭제
+        $("input[name=cust_nm]").keyup(function(event) {
+
+            var regexpOnlyKor = /[a-z0-9]|[ \[\]{}()<>?|`~!@#$%^&*-_+=,.;:\"'\\]/g;
+            var custNm = $(this).val();
+            if (regexpOnlyKor.test(custNm)) {
+                alert("한글만 입력할 수 있습니다.");
+                $(this).val(custNm.replace(regexpOnlyKor, ""));
+            }
+
+        });
+
+
+        //2017-08-07 이벤트 추가
+        //
+        showDivs(slideIndex);
+        //fnSetFormDataForView();
+        //fnSetS_scOnload();
+    };
+
+    function fnSetS_scOnload() {
+        s_sc.channel = "public"; // 공통영역
+        s_sc.pageName = "pc:ko:public:driver:mileage_micro"; // 페이지명
+
+        s_sc.prop5 = "out"; // _cms_age 쿠키값 있는 경우 'in', default 값은 'out'
+        s_sc.eVar5 = "D=c5";
+
+        s_sc.prop6 = "ko"; // axa_lang_type 쿠키값
+        s_sc.eVar8 = "D=c6";
+
+        /* Additional Value 해당 쿠키값 존재하는 경우만 입력, 해당 값이 없으면 생략 가능 */
+
+        s_sc.eVar24 = fnReadCookieSCode("_cms_userid"); // _cms_userid 쿠키값
+        s_sc.eVar25 = fnReadCookieSCode("ccguid"); // ccguid 쿠키값
+
+        void(s_sc.t()); // 전송
+    }
+
+    function fnSetS_scSubmit() {
+
+        s_sc.events = 'event38'; // 상담신청 이벤트건수
+        void(s_sc.t()); // 호출 수(필수)
+    }
+
+    //모바일체크(true==모바일)
+    function isMobile() {
+
+        var browser = "iPhone|iPod|iPad|BlackBerry|Android|Windows CE|LG|MOT|SAMSUNG|SonyEricsson"; //모바일 브라우져 체크
+
+        try {
+            if (navigator.userAgent.match(browser)) {
+                return true;
+            } else {
+                return false;
+            }
+        } catch (e) {
+            return null;
+        }
+    }
+
+    //상담신청후처리
+    var fnAfterAjaxSucc = function(data) { //data.dataInfo.rslt ==> S:성공, 그외 실패 (실패메세지: data.dataInfo.err_msg)
+
+        if (data.dataInfo.rslt == "S") { //성공일 경우
+            wrapWindowByMask('.popup');
+            $("input").each(function(idx, ele) {
+                ele.value = "";
+            }); //저장성공후_입력값제거
+            $(".bgarea .agree a").removeClass("highlight"); //고객정보활용동의초기화
+            $("#gender1, #gender2").removeClass("on"); //성별초기화
+            //alert("상담신청완료");
+            fnSetS_scSubmit();
+        } else { //실패일 경우
+            alert(data.dataInfo.err_msg);
+        }
+
+    };
+
+    var bAlbeToSubmit = true; //연속저장제어
+
+    //상담신청
+    function fnSubmit() {
+
+        if (!bAlbeToSubmit) { //저장요청중인경우(완료되지않음)
+            try {
+                //console.log("연속저장제어");
+            } catch (e) {
+
+            }
+            return; //연속저장제어
+        }
+
+        if (document.form1.cust_nm.value.length <= 0) {
+            alert("이름을 입력하세요.");
+            return;
+        }
+
+        if (!fnSetHpNo()) {
+            alert("상담 받을 연락처를 확인하세요.");
+            return;
+        }
+
+        var bith_d = document.form1.bith_d.value.replace(/[^\d]/g, "");
+
+        if (bith_d.length != 8) {
+            alert("생년월일을 확인하세요.");
+            return;
+        }
+
+        var bValGender = fnSetGender();
+
+        if (!bValGender) { //성별체크
+            alert("성별을 선택하세요.");
+            return;
+        }
+
+        if (!$(".bgarea .agree a").hasClass("highlight")) {
+            document.form1.cust_agrm_yn.value = "N";
+            alert("고객정보 활용 동의를 체크하세요.");
+            return;
+        } else {
+            document.form1.cust_agrm_yn.value = "Y";
+        }
+
+        var strURL = "/SVSSWLI14300-ZI.jstl";
+
+        var objData = {
+            dummy: null,
+            pfmTxCode: "SVSSWLI14300",
+            pfmFnCd: "ZI"
+
+            ,
+            call_type_1: "K100",
+            call_type_2: "1530"
+                //, cust_nm     : document.form1.cust_nm.value
+                ,
+            cust_nm: encodeURI(document.form1.cust_nm.value),
+            hp_no1: document.form1.hp_no1.value,
+            hp_no2: document.form1.hp_no2.value,
+            hp_no3: document.form1.hp_no3.value,
+            bith_d: bith_d,
+            gender_cd: document.form1.gender_cd.value,
+            intgrt_cd: "0109301" //7b
+                ,
+            cust_agrm_yn: document.form1.cust_agrm_yn.value
+        };
+
+        bAlbeToSubmit = false; //중복입력방지(입력불가로변경)
+
+        try {
+            $.ajax({
+                type: "POST",
+                url: strURL,
+                dataType: "json",
+                contentType: "application/x-www-form-urlencoded;charset=euc-kr",
+                data: objData,
+                cache: false,
+                success: fnAfterAjaxSucc,
+                error: function(x, o, e) {
+                    //TODO: 오류 메세지 변경
+                    alert("통신오류가 발생하였습니다.\n잠시 후 다시 진행하시기 바랍니다.\n" + x.status + " : " + o + " : " + e);
+                }
+            });
+
+        } catch (e) {
+
+        }
+
+        bAlbeToSubmit = true; //중복입력방지(입력가능으로변경)
+    }
+
+    //전화번호 전송 포멧
+    function fnSetHpNo() {
+
+        var form1 = document.form1;
+        var strHpNo = document.form1.hp_no.value.replace(/[-]/g, "");
+        var strHpNoFmt = strHpNo.replace(/(^0(?:2|[\d]{2}))([\d]+)([\d]{4}$)/g, "$1-$2-$3");
+        var arrStrHpNo = null;
+
+        if (strHpNoFmt) {
+            arrStrHpNo = strHpNoFmt.split("-");
+        }
+
+        if (strHpNo.length >= 8 && strHpNo.length <= 11 && arrStrHpNo && arrStrHpNo.length == 3 && arrStrHpNo[1].length <= 4) {
+            form1.hp_no1.value = arrStrHpNo[0]; //strHpNo.substring(0,3);
+            form1.hp_no2.value = arrStrHpNo[1]; //strHpNo.substring(3,7);
+            form1.hp_no3.value = arrStrHpNo[2]; //strHpNo.substring(7,strHpNo.length);
+            return true;
+        } else {
+            form1.hp_no1.value = "";
+            form1.hp_no2.value = "";
+            form1.hp_no3.value = "";
+            return false;
+        }
+    }
+
+    //성별
+    function fnSetGender() {
+        if ($("#gender1").hasClass("on")) {
+            return document.form1.gender_cd.value = "1";
+        } else if ($("#gender2").hasClass("on")) {
+            return document.form1.gender_cd.value = "2";
+        } else {
+            null;
+        }
+    }
+
+    //전화번호, 생년월일 뷰포멧
+    function fnSetFormDataForView() {
+
+        var form1 = document.form1;
+
+        form1.hp_no.value = form1.hp_no.value.replace(/[^\d]/g, "");
+        form1.hp_no.value = form1.hp_no.value.replace(/(^0(?:2|[\d]{2}))([\d]+)([\d]{4}$)/g, "$1-$2-$3");
+        form1.bith_d.value = form1.bith_d.value.replace(/[^\d]/g, "");
+        form1.bith_d.value = form1.bith_d.value.replace(/(^[\d]{4})([\d]{2})([\d]{2}$)/g, "$1.$2.$3");
+
+    }
+
+    //전화번호, 생년월일 수정포멧
+    function fnSetFormDataForEdit(el_nm) {
+
+        var form1 = document.form1;
+
+        if ("hp_no" == el_nm && form1.hp_no.value.match(/[^\d]/g)) {
+            form1.hp_no.value = form1.hp_no.value.replace(/[^\d]/g, "");
+        }
+        if ("bith_d" == el_nm && form1.bith_d.value.match(/[^\d]/g)) {
+            form1.bith_d.value = form1.bith_d.value.replace(/[^\d]/g, "");
+        }
+    }
+    </script>
+    <script>
+    var slideIndex = 1;
+
+    function plusDivs(n) {
+        showDivs(slideIndex += n);
+    }
+
+    function currentDiv(n) {
+        showDivs(slideIndex = n);
+    }
+
+    function showDivs(n, type) {
+        var i;
+        var x = document.getElementsByClassName("mySlides");
+        var dots = document.getElementsByClassName("iconslider");
+        if (n > x.length) {
+            slideIndex = 1
+        }
+        if (n < 1) {
+            slideIndex = x.length
+        }
+        for (i = 0; i < x.length; i++) {
+            x[i].style.display = "none";
+        }
+        for (i = 0; i < dots.length; i++) {
+            dots[i].className = dots[i].className.replace(" on", "");
+        }
+        x[slideIndex - 1].style.display = "block";
+        dots[slideIndex - 1].className += " on";
+
+    }
+    </script>
+    <script type="text/javascript">
+    //마스크
+    function wrapWindowByMask(obj) {
+        var maskHeight = $(document).height();
+        var maskWidth = $(window).width();
+
+        $('.mask').css({
+            'width': maskWidth,
+            'height': maskHeight
+        });
+
+        $('.mask').fadeIn();
+        $('.mask').fadeTo("slow", 0.8);
+
+        var left = ($(window).scrollLeft() + ($(window).width() - $(obj).width()) / 2);
+        var top = ($(window).scrollTop() + ($(window).height() - $(obj).height()) / 2);
+
+        $(obj).css({
+            'left': left,
+            'top': top,
+            'position': 'absolute'
+        });
+        $(obj).show();
+    }
+
+    $(document).ready(function() {
+        //상담신청 버튼
+        $('.tellme').click(function(e) {
+            e.preventDefault();
+            fnSubmit(); //상담신청 저장 ( fnAfterAjaxSucc() 에서 성공/실패 확인가능 )
+        });
+        //자세히 보기 팝업 열기
+        $('.btn_more01').click(function(e) {
+            e.preventDefault();
+            wrapWindowByMask('#popup01');
+        });
+        $('.btn_more02').click(function(e) {
+            e.preventDefault();
+            wrapWindowByMask('#popup02');
+        });
+        //상담신청 팝업 닫기
+        $('.close_layer').click(function(e) {
+            e.preventDefault();
+            $('.popup').hide();
+            $('.mask').hide();
+        });
+
+        //2019-07-15 추가 : 헤더메뉴
+        $('.open_menu').click(function(){
+            $('#gnb').show();
+        });
+        $('.close_menu').click(function(){
+            $('#gnb').hide();
+        });
+    });
+    </script>
+    <script type="text/javascript">
+    setTimeout(function() {
+        var a = document.createElement("script");
+        var b = document.getElementsByTagName("script")[0];
+        a.src = document.location.protocol + "//script.crazyegg.com/pages/scripts/0040/2488.js?" + Math.floor(new Date().getTime() / 3600000);
+        a.async = true;
+        a.type = "text/javascript";
+        //b.parentNode.insertBefore(a, b)
+    }, 1);
     </script>
 </head>
 
 <body>
-    <div id="wrap">
-        <div class="progress_wrap">
-            <span class="bar">
-                <em class="per"></em>
-            </span>
+    <form name="form1">
+        <input type="hidden" name="hp_no1">
+        <!--연락처1-->
+        <input type="hidden" name="hp_no2">
+        <!--연락처2-->
+        <input type="hidden" name="hp_no3">
+        <!--연락처3-->
+        <input type="hidden" name="gender_cd" value="1">
+        <!--성별-->
+        <input type="hidden" name="cust_agrm_yn">
+        <div class="mask">
+            <!-- 마스크로 띄워질 Div -->
         </div>
-        <div id="container">
-            <div class="tit_area">
-                <h1 class="tit_h1">반갑습니다,
-                    <br/>
-                    <strong>장은정 입니다.</strong>
-                </h1>
-                <p class="txt">현재 6년차 프론트/백엔드 기획자로 일하고있으며, e-commerce 산업과 금융권에서 업무를 진행 하였습니다.
-                    <br/> 유형의 자산을 정확하고 빠르게 도착 하도록 프로그램을 개발하고, 무형의 자산에 대하여 고객이 신뢰 할 수 있도록 기획했습니다.
-                    <br/> 기획자의 가치는 화면 정의에서 끝나는 것이 아니라 업무에 대해 깊이 이해하며, 함께 비지니스 가치를 구현 하는데서 나온다고 믿습니다.</p>
+        <div class="popup" id="popup01">
+            <h1>개인정보 수집 및 이용 동의</h1>
+            <a href="#none" class="close_layer"><span class="hidden">닫기</span></a>
+            <div class="cont">
+                <strong class="tit">당사는 「개인정보보호법」및「정보통신망 이용촉진 및 정보보호 등에 관한 법률」에<br /> 따라 귀하의 개인정보를 다음과 같이 수집 &middot; 이용하고자 합니다.</strong>
+                <div class="box_area">
+                    <ul>
+                        <li><strong>개인정보의 수집, 이용 목적 </strong>상품 &middot; 서비스 소개 및 판매, 사은 &middot; 판촉행사 안내, 시장조사</li>
+                        <li class="mt15"><strong>수집 &middot; 이용할 개인정보의 내용</strong> 생년월일, 성별, 성명, 전화번호</li>
+                        <li class="mt15"><strong>개인정보의 보유 &middot; 이용기간</strong>
+                            <ul class="rad_list">
+                                <li class="formWrap">
+                                    <input type="radio" id="sample01_01" name="sample01" checked="checked" />
+                                    <label for="sample01_01">수집 &middot; 이용 동의일로부터 3년 까지</label>
+                                </li>
+                                <li class="formWrap">
+                                    <input type="radio" id="sample01_02" name="sample01" />
+                                    <label for="sample01_02">수집 &middot; 이용 동의일로부터 2년 까지</label>
+                                </li>
+                                <li class="formWrap">
+                                    <input type="radio" id="sample01_03" name="sample01" />
+                                    <label for="sample01_03">수집 &middot; 이용 동의일로부터 1년 까지</label>
+                                </li>
+                            </ul>
+                        </li>
+                        <li class="mt15"><strong>가입권유 연락방식</strong>
+                            <ul class="rad_list">
+                                <li class="formWrap">
+                                    <input type="radio" id="sample02_01" name="sample02" checked="checked" />
+                                    <label for="sample02_01">전화, 문자</label>
+                                </li>
+                                <li class="formWrap">
+                                    <input type="radio" id="sample02_02" name="sample02" />
+                                    <label for="sample02_02">전화</label>
+                                </li>
+                                <li class="formWrap">
+                                    <input type="radio" id="sample02_03" name="sample02" />
+                                    <label for="sample02_03">문자</label>
+                                    <span class="notice">* 가입권유방식을 문자로 받으실 경우, 전문 상담원의 안내 전화가 나가지 않습니다.</span>
+                                </li>
+                            </ul>
+                        </li>
+                    </ul>
+                </div>
+                <ul class="star_list">
+                    <li>상기 내용의 동의를 거부할 수 있으며, 다만 동의를 하시지 않는 경우 보험설계 및 상담서비스 제공이 제한될 수 있습니다.</li>
+                    <li>동의하시더라도 당사 홈페이지 및 고객센터(1566-1566)를 통해 철회하거나 가입권유 목적의 연락에 대한 중단을 요청하실 수 있으며 은행연합회의 Do Not Call 센터(www.donotcall.or.kr)를 통해 언제든지 마케팅 활동에 대한 중지를 요청할 수 있습니다.</li>
+                </ul>
             </div>
-            <div class="contents">
-                <div class="content01">
-                    <h2 class="tit_h2">WORK EXPERRIENCE</h2>
+            <div class="btn_confirm"><a href="#none" class="close_layer">확인</a></div>
+        </div>
+        <div class="popup" id="popup02">
+            <h1>개인정보의 제3자 제공에 관한 동의</h1>
+            <a href="#none" class="close_layer"><span class="hidden">닫기</span></a>
+            <div class="cont">
+                <strong class="tit">당사는 「개인정보보호법」및「정보통신망 이용촉진 및 정보보호 등에 관한 법률」에<br /> 따라 귀하의 개인정보를 다음과 같이 제3자에게 제공하고자 합니다.</strong>
+                <div class="box_area">
+                    <ul>
+                        <li class="mt15"><strong>개인정보를 제공 받는 자</strong>악사손해보험과 모집위탁계약을 체결한 설계사 또는 대리점</li>
+                        <li class="mt15"><strong>개인정보를 제공 받는 자의 이용목적</strong>상품 &middot; 서비스 소개 및 판매, 사은 &middot; 판촉행사 안내</li>
+                        <li class="mt15"><strong>제공할 개인정보의 내용</strong>생년월일, 성별, 성명, 전화번호</li>
+                        <li class="mt15"><strong>개인정보의 보유 &middot; 이용기간</strong>
+                            <ul class="rad_list">
+                                <li class="formWrap">
+                                    <input type="radio" id="sample03_01" name="sample03" checked="checked" />
+                                    <label for="sample03_01">수집 &middot; 이용 동의일로부터 3년 까지</label>
+                                </li>
+                                <li class="formWrap">
+                                    <input type="radio" id="sample03_02" name="sample03" />
+                                    <label for="sample03_02">수집 &middot; 이용 동의일로부터 2년 까지</label>
+                                </li>
+                                <li class="formWrap">
+                                    <input type="radio" id="sample03_03" name="sample03" />
+                                    <label for="sample03_03">수집 &middot; 이용 동의일로부터 1년 까지</label>
+                                </li>
+                            </ul>
+                        </li>
+                        <li class="mt15"><strong>가입권유 연락방식</strong>
+                            <ul class="rad_list">
+                                <li class="formWrap">
+                                    <input type="radio" id="sample04_01" name="sample04" checked="checked" />
+                                    <label for="sample04_01">전화, 문자</label>
+                                </li>
+                                <li class="formWrap">
+                                    <input type="radio" id="sample04_02" name="sample04" />
+                                    <label for="sample04_02">전화</label>
+                                </li>
+                                <li class="formWrap">
+                                    <input type="radio" id="sample04_03" name="sample04" />
+                                    <label for="sample04_03">문자</label>
+                                    <span class="notice">* 가입권유방식을 문자로 받으실 경우, 전문 상담원의 안내 전화가 나가지 않습니다.</span>
+                                </li>
+                            </ul>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+            <div class="btn_confirm"><a href="#none" class="close_layer">확인</a></div>
+        </div>
 
-                    <div class="con_box">
-                        <div class="item01">
-                            <div class="tit">
-                                <h3 class="tit_h3">
-                                    <strong>AXA손해보험</strong>
-                                </h3>
-                                <p>기획PM (대리)
-                                    <br/>2016.08-</p>
-                            </div>
-                            <div class="cont">
-                                <dl>
-                                    <dt>WEB&MOBILE(WEB/APP)사이트 운영 관리</dt>
-                                    <dd class="tit">2016.08 -</dd>
-                                </dl>
-                                <dl>
-                                    <dt class="t_tit">Description .</dt>
 
-                                    <p>디지털운영기획팀에서 생산성 관리 툴(Meister Task) 도입하고, 개발사와 유관부서 커뮤니케이션 담당하며 개발사 컨택포인트로써 유관부서 전체를 대상으로
-                                        디지털채널 커뮤니케이션 담당하고 있습니다.</p>
-                                </dl>
-                                <dl>
-                                    <dt class="t_tit">What did I do .</dt>
-                                    <dd>
-                                        <ul class="dot_list">
-                                            <li>당사 핀테크 도입 기술 검토 및 기획 담당
-                                                <br/>(fido,kakao pay인증)</li>
-                                            <li>모바일(web/app)사이트 개편</li>
-                                            <li>웹/모바일(web/app) 사이트 관리 및 장애 이슈 대응</li>
-                                            <li>웹/모바일 사이트 UI A/B testing 도입</li>
-                                            <li>CMS(ContentManagementSystem) 솔루션 리뉴얼</li>
-                                            <li>마이크로사이트 구축 및 운영관리</li>
-                                        </ul>
-                                    </dd>
-                                </dl>
-                                <dl>
-                                    <dt class="t_tit">Result .</dt>
-                                    <dd>
-                                        <ul class="dot_list">
-                                            <li>사용자 경험 개선으로 이전 기간대비 앱 설치율 4배 이상 증가</li>
-                                            <li>자동차보험 마이크로 사이트를 시작으로 일반/장기 상품까지 확대하여 sales및 고객확보에 기여함</li>
-                                            <li>A/B Test를 도입하고 수치를 기반으로 화면을 변경하도록하여 업무 효율성을 높임</li>
-                                        </ul>
-                                    </dd>
-                                </dl>
-                            </div>
+        <div id="wrap">
+            <header>
+                <h1><a href="https://www.axa.co.kr" target="_blank"><img src="inc/img/img_logo.png" alt="AXA다이렉트"> <span>(무)시니어암보험1904</span></a></h1>
+                <div class="fRight">
+                    <span class="tel">대표번호 <em>1566-1566</em></span>
+                    <a href="#none" class="open_menu">
+                        <span class="hidden">메뉴열기</span>
+                    </a>
+                </div>
+            </header>
+            <div id="gnb">
+                <div class="nav">
+                    <ul>
+                        <li class="on">
+                            <dl>
+                                <dt><a href="index.html">시니어 암보험</a></dt>
+                                <dd><a href="sub01.html">보장내용</a></dd>
+                                <dd><a href="sub02.html">가입안내</a></dd>
+                                <dd><a href="sub03.html">알아두실 사항</a></dd>
+                            </dl>
+                        </li>
+                        <li>
+                            <dl>
+                                <dt><a href="#none">생활비받는건강보험</a></dt>
+                                <dd><a href="#none">보장내용</a></dd>
+                                <dd><a href="#none">가입안내</a></dd>
+                                <dd><a href="#none">알아두실 사항</a></dd>
+                            </dl>
+                        </li>
+                        <li>
+                            <dl>
+                                <dt><a href="#none">(무)AXA마일리지운전자보험</a></dt>
+                                <dd><a href="#none">보장내용</a></dd>
+                                <dd><a href="#none">가입안내</a></dd>
+                                <dd><a href="#none">알아두실 사항</a></dd>
+                            </dl>
+                        </li>
+                    </ul>
+                    <button type="button" class="close_menu"><span class="hidden">메뉴닫기</span></button>
+                </div>
+            </div>
+            <div class="content">
+                <div class="slide_area">
+                    <div class="navi_area">
+                        <div class="navi_list">
+                            <button class="prev" onclick="plusDivs(-1); return false;"><span class="hidden">이전</span></button>
+                            <button type="button" class="page01 iconslider on" onClick="currentDiv(1)"><span class="hidden">page 1</span></button>
+                            <button type="button" class="page02 iconslider" onClick="currentDiv(2)"><span class="hidden">page 2</span></button>
+                            <button type="button" class="page03 iconslider" onClick="currentDiv(3)"><span class="hidden">page 3</span></button>
+                            <button class="next" onclick="plusDivs(1);  return false;"><span class="hidden">다음</span></button>
                         </div>
-                        <div class="item02">
-                            <div class="tit">
-                                <h3 class="tit_h3">
-                                    <strong>FOREVER21
-                                        <br/>KOREA</strong>
-                                </h3>
-                                <p>FRONT-END Developer (Associate)
-                                    <br/>2013.04.29-2016.07</p>
+                    </div>
+                    <p class="seal_num">검-190419-신채널개발팀-30</p>
+                    <ul>
+                        <li class="mySlides slide01 active">
+                           <span class="hidden">간편 심사를 통해 암진단 시 진단금을 보장해드립니다.(특약가입 시) 5대고액치료비암(간편심사)</span>
+                        </li>
+                        <li class="mySlides slide02">
+                            <span class="hidden">각 종 질병 진단금을 보장해 드립니다.(특약가입 시) 통증진단비, 대상포진진단비, 대상포진눈병진단비, 알츠하이머병진단비, 루게릭병진단비, 파킨슨병진단비</span> <!-- 2019-04-18 : 수정 -->
+                        </li>
+                        <li class="mySlides slide03">
+                             <span class="hidden">만기환급금 100만원 지급합니다.(1종 만기환급형 가입시) 보이스피싱손해(실제 금전 손해의 70%)</span> <!-- 2019-04-18 : 수정 -->
+                        </li>
+                    </ul>
+                </div>
+                <div class="input_area bgarea">
+                    <div class="inner">
+                        <!-- 정보 입력 -->
+                        <fieldset>
+                            <legend>고객정보입력</legend>
+                            <div class="input_info">
+                                <ul>
+                                    <li class="birth">
+                                        <div class="form">
+                                            <label for="birth">생년월일</label>
+                                            <input type="text" id="birth" maxlength="8" onclick="fnSetFormDataForEdit(this.name);" onkeyup="fnSetFormDataForView();" onkeypress="if(!(event.keyCode >= 48 && event.keyCode <= 57))return false; this.onclick();" onblur="this.onkeyup();" style="width:92px" placeholder="예)19970101" />
+                                        </div>
+                                        <div class="gender">
+                                            <a href="#none" id="gender1" title="남" onclick="this.className='on'; gender2.className=''; return false;" onkeypress="this.onclick();" class="on">남</a>
+                                            <a href="#none" id="gender2" title="여" onclick="this.className='on'; gender1.className=''; return false;" onkeypress="this.onclick();">여</a>
+                                        </div>
+                                    </li>
+                                    <li>
+                                        <label for="name">이름</label>
+                                        <input type="text" id="name" maxlength="15" style="width:220px" />
+                                    </li>
+                                    <li class="phone">
+                                        <select title="휴대폰 첫번째 자리">
+                                            <option value="">010</option>
+                                            <option value="">011</option>
+                                            <option value="">016</option>
+                                            <option value="">017</option>
+                                            <option value="">018</option>
+                                            <option value="">019</option>
+                                        </select>
+                                        <input type="text" title="휴대폰 두번째 자리" maxlength="14" onclick="fnSetFormDataForEdit(this.name);" onkeyup="fnSetFormDataForView();" onkeypress="this.onkeyup();" onblur="this.onkeyup();" />
+                                        <span class="dash">-</span>
+                                        <input type="text" title="휴대폰 세번째 자리" maxlength="14" onclick="fnSetFormDataForEdit(this.name);" onkeyup="fnSetFormDataForView();" onkeypress="this.onkeyup();" onblur="this.onkeyup();" />
+                                    </li>
+                                </ul>
                             </div>
-                            <div class="cont">
-                                <dl>
-                                    <dt>SCM(Supply Chain Management)
-                                        <br/>프로그램 개발</dt>
-                                </dl>
-                                <dl>
-                                    <dt class="t_tit">Description .</dt>
-                                    <p>기존에 사용하던 구버전 Warehouse system 업그레이드 작업을 진행하였고, 재고를 최대한 줄이는 것에 대한 목표를 가지고 시니어 개발자와 협업하여
-                                        세명으로 프로젝트를 진행하였습니다. 주로 데이터 연동과 인터페이스 코딩을 맡아 프로젝트를 진행하였습니다.</p>
-                                </dl>
-                                <dl>
-                                    <dt class="t_tit">What did I do .</dt>
-                                    <dd>
-                                        <ul class="dot_list">
-                                            <li>시스템 자동화 기능 개발 (내부 Scheduler 개발) </li>
-                                            <li>Report 기능 개발(Crystal Report로 변경)</li>
-                                            <li>Bulk 기능 개발</li>
-                                        </ul>
-                                    </dd>
-                                </dl>
-                                <dl>
-                                    <dt class="t_tit">Tech Stack.</dt>
-                                    <p>C#, .NetFramework, Mssql, Html, Javacript, Jquery, Ajax, XML, VB6.0</p>
-                                </dl>
-                                <dl>
-                                    <dt class="sub_tit">COMMERCE 웹사이트 개발 </dt>
-                                </dl>
-                                <dl>
-                                    <dt class="t_tit">Description .</dt>
-                                    <p>한국/중국/일본아시아사이트프론트엔드인터페이스코딩과 결제솔루션연동,내부데이터연동을작업하였습니다.프론트엔드부분은혼자맡아진행하였습니다.
-                                    </p>
-                                </dl>
-                                <dl>
-                                    <dt class="t_tit">What did I do .</dt>
-                                    <dd>
-                                        <ul class="dot_list">
-                                            <li>사이트내 자체 CMS(Content Management system) 개발</li>
-                                            <li>재고확인,입고알림 개발</li>
-                                            <li>한국/중국/일본 메인 페이지 개편</li>
-                                            <li>상품페이지 개편</li>
-                                            <li>장바구니 UI개편</li>
-                                            <li>더보기 기능추가</li>
-                                        </ul>
-                                    </dd>
-                                </dl>
-                                <dl>
-                                    <dt class="t_tit">Tech Stack.</dt>
-                                    <p>C#, .NetFramework, Mssql, Html, Javacript, Jquery, Ajax, XML, VB6.0</p>
-                                </dl>
-                            </div>
+                            <ul class="agree_list">
+                                <li>
+                                    <span class="formWrap"><input type="checkbox" id="agree01"><label for="agree01">개인정보수집 이용 동의</label></span>
+                                    <span class="more_info"><a href="#" class="btn_more01">자세히보기</a></span>
+                                </li>
+                                <li>
+                                    <span class="formWrap"><input type="checkbox" id="agree02"><label for="agree02">개인정보 제공 동의</label></span>
+                                    <span class="more_info"><a href="#" class="btn_more02">자세히보기</a></span>
+                                </li>
+                            </ul>
+                        </fieldset>
+                        <!-- //정보 입력 -->
+                        <!-- 정보 입력 후 확인 결과 노출 -->
+                        <div class="result_area"  style="display:none;">
+                            <div class="question">홍길동님의 월 보험료는?</div>
+                            <div class="answer"><strong>1,000,000</strong><span>원</span></div>
+                            <p>상담 신청을 통해<br /> 할인 금액을 확인 하세요!</p>
                         </div>
-                        <div class="item03">
-                            <div class="tit">
-                                <h3 class="tit_h3">
-                                    <strong>NET AND HUMAN INTERFACE</strong>
-                                </h3>
-                                <p>Software Engineer (대리)
-                                    <br/>2011.10.04-2013.04.22</p>
-                            </div>
-                            <div class="cont">
-                                <dl>
-                                    <dt>시스템 접근 제어
-                                        <br/>솔루션 개발</dt>
-                                </dl>
-                                <dl>
-                                    <dt class="t_tit">Description .</dt>
-                                    <p>개발팀의 신입 팀원으로서 솔루션 시스템 프론트엔드와 백엔드를 개발하였습니다. 컨설팅 팀과 협업하여 BMT를 지원하고 2.0 버전 업그레이드에 참여하였습니다.</p>
-                                </dl>
-                                <dl>
-                                    <dt class="t_tit">What did I do .</dt>
-                                    <dd>
-                                        <ul class="dot_list">
-                                            <li>Dash board 화면 개발</li>
-                                            <li>금지명령어 및 금지 쿼리 기능 개발</li>
-                                        </ul>
-                                    </dd>
-                                </dl>
-                                <dl>
-                                    <dt class="t_tit">Tech Stack.</dt>
-                                    <p>FLEX,XML,ORACLE</p>
-                                </dl>
-                            </div>
+                        <div class="tel_area">
+                            <a href="tel:16703708"><img src="inc/img/btn_call.png" alt="평일9~18시 나의 할인액은? 1670-3708" /></a>
+                        </div>
+                        <!-- //정보 입력 후 확인 결과 -->
+                        <div class="btn_area">
+                            <a href="#">보험료 바로 확인</a>
+                            <a href="#">상담 신청</a>
+                            <!-- 정보 입력 후 확인 결과 노출 시
+                            <a href="#">보험료 다시 계산하기</a>
+                         -->
                         </div>
                     </div>
                 </div>
-
-                <h2 class="tit_h2">자격증</h2>
-                <div class="tbl_area" style="margin-top:20px;">
-                    <ol class="mbt">
-                        <p>(국가공인) 네트워크 관리사 2급</p>
-                        <li>
-                            <span class="num bg">취득일</span>
-                            <span class="txt">2016년 06월</span>
-                        </li>
-                        <li class="bg">
-                            <span class="num bg">발행처</span>
-                            <span class="txt">한국정보통신자격협회</span>
-                        </li>
-                    </ol>
-                </div>
-                <h2 class="tit_h2">해외경험</h2>
-                <div class="tbl_area" style="margin-top:20px;">
-                    <ol>
-                        <p>필리핀</p>
-                        <li>
-                            <span class="num bg">기간</span>
-                            <span class="txt">2010년 07월~2010년 10월</span>
-                        </li>
-                        <li class="bg">
-                            <span class="num bg">연수내용</span>
-                            <span class="txt">교내 장학생 어학연수 참여</span>
-                        </li>
-                    </ol>
+                <div class="menu_list">
+                    <ul>
+                        <li class="menu01"><a href="sub01.html"><span>보장 내용</span></a></li>
+                        <li class="menu02"><a href="sub02.html"><span>가입 안내</span></a></li>
+                        <li class="menu03"><a href="sub03.html"><span>알아두실 사항</span></a></li>
+                    </ul>
                 </div>
             </div>
+            <footer>
+                <address>
+                    <span>AXA손해보험(주) 대표이사 질 프로마조</span>
+                    <span>사업자등록번호 114-86-04968</span>
+                    <span>(04322) 서울시 용산구 한강대로 71길 4 한진중공업빌딩 11층</span>
+                    <span>TEL 1566-1566</span>
+                </address>
+                <p class="copy">Copyrightⓒ2001~2017 AXA General Insurance Co., Ltd. All Rights Reserved.</p>
+            </footer>
         </div>
-    </div>
+    </form>
 </body>
 
 </html>
